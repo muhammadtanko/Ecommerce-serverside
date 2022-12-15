@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+    <style>
+        table, th, td{
+            border: 1px solid;
+        }
+    </style>
+</head>
+
+<body>
+    <button type="submit" onclick="request()">Fetch orders</button>
+    <h4>List of orders placed</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>price</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr id="tableRow">
+
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+         let guard = window.localStorage.getItem("userType");
+        if (!guard || guard === "guest") {
+            window.addEventListener("load", routeGuard)
+        }
+        const routeGuard = () => {
+            let body = document.getElementsByTagName("body")[0]
+            if (!guard) {
+                body.innerHTML = "<p>you are not allowed to access this page without logging in, you will be redirected shortly</p>";
+                setTimeout(() => {
+                    window.location.replace("index.html")
+                }, 3000)
+            } else if (guard === "guest") {
+                body.innerHTML = "<p>you are not allowed to access this page , you will be redirected shortly</p>";
+                setTimeout(() => {
+                    window.location.replace("guest.html")
+                }, 3000)
+            }
+        }
+        const tableBody = document.getElementById("tableBody");
+        let products = null;
+        async function fetchOrders() {
+
+            let result = await fetch("http://localhost/api/v1/products");
+            orders = await result.json();
+            // console.log("orders>", orders.payload);
+            if (orders) {
+                orders.payload.map(order => {
+                    let tableData = `<tr>
+                                        <td> ${order._id}</td>
+                                        <td> ${order.name}</td>
+                                        <td> ${order.category}</td>
+                                        <td> ${order.quantity}</td>
+                                        <td> ${order.price}</td>
+                                    </tr>`
+                    tableBody.innerHTML += tableData
+
+                })
+
+            } else {
+
+            }
+
+        }
+        function request() {
+            fetch("http://localhost/api/v1/orders")
+                .then(async (result) => {
+                    let orders = await result.json();
+                    if (orders) {
+                        orders.payload.map(order => {
+                            let tableData = `<tr>
+                                        <td> ${order._id}</td>
+                                        <td> ${order.name}</td>
+                                        <td> ${order.category}</td>
+                                        <td> ${order.quantity}</td>
+                                        <td> ${order.price}</td>
+                                    </tr>`
+                            tableBody.innerHTML += tableData
+                        })
+                    }
+                })
+                .catch((error) => {
+                    window.location.reload()
+                })
+        }
+
+    </script>
+
+</body>
+
+</html>

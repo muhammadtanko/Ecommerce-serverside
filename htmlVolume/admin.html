@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button><a href="products.html">Products</a></button>
+    <button><a href="orders.html">Orders</a></button>
+    <button><a href="createproduct.html">Create product</a></button>
+    <button><a href="createuser.html">Create user</a></button>
+    <button><a href="users.html">Users</a></button>
+    <button onclick="logOut()">Logout</button>
+    <script>
+        let guard = window.localStorage.getItem("userType");
+        if (!guard || guard === "guest") {
+            window.addEventListener("load", routeGuard)
+        }
+        const routeGuard = () => {
+            let body = document.getElementsByTagName("body")[0]
+            if (!guard) {
+                body.innerHTML = "<p>you are not allowed to access this page without logging in, you will be redirected shortly</p>";
+                setTimeout(() => {
+                    window.location.replace("index.html")
+                }, 3000)
+            } else if (guard === "guest") {
+                body.innerHTML = "<p>you are not allowed to access this page , you will be redirected shortly</p>";
+                setTimeout(() => {
+                    window.location.replace("guest.html")
+                }, 3000)
+            }
+        }
+        const logOut = ()=>{
+            window.localStorage.removeItem("userType");
+            window.location.replace("index.html");
+        }
+    </script>
+</body>
+
+</html>

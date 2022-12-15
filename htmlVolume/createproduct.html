@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create product</title>
+    <h4>Create product</h4>
+</head>
+
+<body>
+    <div id="form">
+        <label for="">Name:</label>
+        <input type="text" name="name"><br>
+
+        <label for="">Category</label>
+        <input type="text" name="category"><br>
+
+        <label for="">quantity</label>
+        <input type="number" name="quantity"><br>
+
+        <label for="">price</label>
+        <input type="number" name="price"><br>
+
+        <button onclick="submit()">Submit</button>
+    </div>
+    <div id="message"></div>
+    <div id="error" style="background-color: red;"></div>
+    <script>
+        let guard = window.localStorage.getItem("userType");
+        if (!guard || guard === "guest") {
+            window.addEventListener("load", routeGuard)
+        }
+        const routeGuard = () => {
+            let body = document.getElementsByTagName("body")[0]
+            if (!guard) {
+                body.innerHTML = "<p>you are not allowed to access this page without logging in, you will be redirected shortly</p>";
+                setTimeout(() => {
+                    window.location.replace("index.html")
+                }, 3000)
+            } else if (guard === "guest") {
+                body.innerHTML = "<p>you are not allowed to access this page , you will be redirected shortly</p>";
+                setTimeout(() => {
+                    window.location.replace("guest.html")
+                }, 3000)
+            }
+        }
+        const submit = () => {
+
+            let message = document.getElementById("message");
+            let errorMessage = document.getElementById("error");
+            let form = document.getElementById("form");
+            let inputValues = form.getElementsByTagName("input");
+            let requestBody = {};
+            for (let i = 0; i < inputValues.length; i++) {
+                let element = inputValues[i];
+                requestBody[element.getAttribute("name")] = element.value;
+            }
+            console.log("rb>", requestBody);
+            let { name, category, quantity, price } = requestBody;
+            if (name === "" || category === "" || quantity === "" || price === "") {
+                errorMessage.innerHTML = "<p> All input fields are required</p>";
+            } else {
+                fetch("http://localhost/api/v1/products", { method: "POST", body: JSON.stringify(requestBody), headers: { "content-type": "application/json;charset=UTF-8" } })
+                    .then(async (result) => {
+                        let res = await result.json();
+                        let { payload } = res;
+                        message.innerHTML = "<p >product added</p>";
+                    })
+                    .catch((error) => {
+                        errorMessage.innerHTML = "<p>error adding product please try again after 2 seconds</p>";
+                        setTimeout(() => {
+                            window.location.reload();
+                        },2000)
+                    })
+            }
+        }
+    </script>
+</body>
+
+</html>

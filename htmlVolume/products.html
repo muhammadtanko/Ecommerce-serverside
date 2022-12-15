@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid;
+        }
+    </style>
+</head>
+
+<body>
+    <button type="submit" onclick="fetchProducts()">fetch products</button>
+    <table id="table">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Category</th>
+                <th>Name</th>
+                <th>Current stock</th>
+                <th>Price</th>
+                <!-- <th>Action</th> -->
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr id="tableRow">
+
+            </tr>
+        </tbody>
+    </table>
+    <div>
+        <h4>Order product</h4>
+        <div id="form">
+            <label for="">Id</label>
+            <input id="productId" type="text" name="id"><br>
+
+            <label for="">quantity</label>
+            <input type="number" name="quantity"><br>
+
+
+            <button onclick="order()">Submit</button>
+        </div>
+    </div>
+    <div style="background-color: red;" id="errormessage"></div>
+    <div id="message"></div>
+    <script>
+        const tableBody = document.getElementById("tableBody");
+        let products = null;
+        let errorMessage = document.getElementById("errormessage");
+        let message = document.getElementById("message")
+        async function fetchProducts() {
+            let result = await fetch("http://localhost/api/v1/products");
+            products = await result.json();
+            if (products) {
+                products.payload.map(product => {
+                    let tableData = `<tr>
+                        <td> ${product._id}</td>
+                        <td> ${product.name}</td>
+                        <td> ${product.category}</td>
+                        <td> ${product.quantity}</td>
+                        <td> ${product.price}</td>
+                        <!-- <td> <input type="submit" onclick="buyProduct('${product._id}')" value= Buy> </td> -->
+                        
+                        </tr>`
+                    tableBody.innerHTML += tableData
+
+                })
+            } else {
+
+            }
+
+        }
+
+        const order = () => {
+
+            let form = document.getElementById("form");
+            let inputValues = form.getElementsByTagName("input");
+
+            let id = inputValues[0].value;
+            let quantity = inputValues[1].value;
+            if (quantity < 1) {
+                div = document.getElementById("message");
+                return errorMessage.innerHTML = `<p>Quantity cannot be ${quantity}</p>`;
+            } else {
+                let requestBody = { id, quantity };
+                fetch("http://localhost/api/v1/orders", { method: "POST", body: JSON.stringify({ id, quantity }), headers: { "content-type": "application/json;charset=UTF-8" } })
+                    .then(async (result) => {
+                        let res = await result.json();
+                        let { payload } = res;
+                        message.innerHTML = "<p >product ordered</p>";
+                        setTimeout(() => {
+                            window.location.reload()
+                        }, 3000)
+                    })
+                    .catch((error) => {
+                        errorMessage.innerHTML = "<p>error ordering product please try again in 5 seconds</p>";
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 3000)
+                    })
+            }
+        }
+        // const buyProduct = (id, quantity) => {
+
+        //     console.log("id>", id);
+        //     products.payload.map(product => {
+        //         if (product._id == id) {
+        //             console.log("product>>", product);
+        //             let { _id, name, category, quantity, price } = product;
+        //             console.log(_id, name, category, quantity, price);
+        //             fetch("http://localhost/api/v1/orders", { method: "POST", body: JSON.stringify({ _id, name, category, quantity, price }), headers: { "content-type": "application/json; charset=UTF-8" } })
+        //                 .then(async (result) => {
+        //                     let res = await result.json();
+        //                     let { payload } = res;
+        //                 })
+        //                 .catch((error) => {
+        //                     console.log("error>>", error);
+        //                 })
+
+        //         } else {
+
+        //         }
+
+        //     })
+        // }
+    </script>
+
+</body>
+
+</html>

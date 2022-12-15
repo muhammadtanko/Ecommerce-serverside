@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>index</title>
+
+
+
+</head>
+
+<body>
+    <div>
+        <h4>Login</h4>
+        <div id="form">
+            <label for="">email</label>
+            <input type="email" name="email"><br>
+            <label for="">password</label>
+            <input type="password" name="password"><br>
+            <button onclick="submit()">login</button>
+        </div>
+        <!-- <button onclick="route()">users page</button> -->
+        <div style="background-color: red;" id="error">
+
+        </div>
+        <br><br>
+
+    </div>
+    <script>
+        const submit = () => {
+            let form = document.getElementById("form");
+            let inputValues = form.getElementsByTagName("input");
+            let requestBody = {};
+            for (let i = 0; i < inputValues.length; i++) {
+                let elements = inputValues[i];
+                requestBody[elements.getAttribute("name")] = elements.value;
+            }
+
+            fetch("/api/v1/users/login", { method: "POST", body: JSON.stringify(requestBody), headers: { "content-type": "application/json; charset=UTF-8" } })
+                .then(async (result) => {
+                    let res = await result.json();
+                    let { payload } = res;
+
+                    if (payload) {
+                        let { userType } = payload;
+                        if (userType === "admin") {
+                            localStorage.setItem("userType","admin");
+                            window.location.replace("admin.html");
+                        } else {
+                            localStorage.setItem("userType","guest");
+                            window.location.replace("guest.html");
+                        }
+                    } else {
+                        let errorDiv = document.getElementById("error");
+                        errorDiv.innerHTML = "<p >incorrect detailts please try again after 5 seconds</p>"
+                        setTimeout(() => {
+                            window.location.reload()
+                        }, 5000)
+                    }
+
+                })
+                .catch((error) => {
+                    window.location.reload()
+                })
+
+        }
+    </script>
+</body>
+
+</html>

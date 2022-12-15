@@ -1,0 +1,48 @@
+version: '3.7'
+services:
+
+  mgdb:
+    image: mongo:latest
+    restart: always
+    networks:
+      - mynetwork
+    volumes:
+      - /home/muhammad/Desktop/e-commerce/storage/mongo/:/data/db/
+
+  proxy:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - /home/muhammad/Desktop/e-commerce/configs/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - mynetwork
+  mainapp:
+    build: ./web
+    volumes:
+      - /home/muhammad/Desktop/e-commerce/htmlVolume/:/app/src/views/
+    restart: always
+    networks:
+      - mynetwork
+  users:
+    build: ./users
+    restart: always
+    networks:
+      - mynetwork
+  orders:
+    build: ./orders
+    depends_on:
+      - mgdb
+    restart: always
+    networks:
+      - mynetwork
+
+  products:
+    build: ./products
+    restart: always
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:

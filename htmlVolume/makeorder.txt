@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <h4>Ordered product</h4>
+    <button onclick="getProduct()">View orders product</button>
+    <table>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr id="tableRow">
+                <td id="id"></td>
+                <td id="name"></td>
+                <td id="category"></td>
+                <td id="price"></td>
+                <td id="quantity"></td>
+
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // setTimeout(() => {
+        // window.addEventListener('load', getProduct);
+        // })
+        const getProduct = () => {
+            const orderedProduct = localStorage.getItem("product");
+            let product = JSON.parse(orderedProduct);
+            console.log("orderedProduct>>", product);
+            let{_id}=product;
+            let id = _id;
+            console.log("new id",id);
+            fetch(`/api/v1/products/${orderedProduct}`)
+                .then(async (result) => {
+                    let res = await result.json();
+                    let { payload } = res;
+                    // console.log("res>>>>", res);
+                    // console.log("payload>>>>", payload);
+                    let { _id, name, category, quantity, price } = payload
+
+                    let pid = document.getElementById("id");
+                    let pName = document.getElementById("name");
+                    let pcategory = document.getElementById("category");
+                    let pPrice = document.getElementById("price");
+                    let pQuantity = document.getElementById("quantity");
+                    pid.innerText = _id;
+                    pName.innerText = name;
+                    pcategory.innerText = category;
+                    pPrice.innerText = price;
+                    pQuantity.innerText = quantity;
+                    let orderPlacement = { _id,name, category, quantity, price };
+                    // console.log("_id>>>",_id);
+                    // console.log("product gotten>", orderPlacement);
+                    buyProduct(orderPlacement);
+                })
+                .catch((error) => {
+                    console.log("error>>", error);
+                })
+        }
+        const buyProduct = (orderPlacement) => {
+            fetch("http://localhost/api/v1/orders", { method: "POST", body: JSON.stringify(orderPlacement), headers: { "content-type": "application/json; charset=UTF-8" } })
+                .then(async (result) => {
+                    // console.log("result>",result);
+                    let res = await result.json();
+                    // console.log("res>>", res);
+                    let { payload } = res;
+                    // console.log("buying product");
+                    // console.log("order payload>>>>", payload);
+                })
+                .catch((error) => {
+                    console.log("error>>", error);
+                })
+        }
+    </script>
+</body>
+
+</html>

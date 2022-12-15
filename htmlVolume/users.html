@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button type="submit" onclick="fetchUsers()">Fetch users</button>
+    <h4>list of users</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Name</th>
+                <th>email</th>
+                <th>address</th>
+                <th>userType</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr id="tableRow">
+
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        let guard = window.localStorage.getItem("userType");
+        if (!guard || guard === "guest") {
+            window.addEventListener("load", routeGuard)
+        }
+        const routeGuard = () => {
+            let body = document.getElementsByTagName("body")[0]
+            if (!guard) {
+                body.innerHTML = "<p>you are not allowed to access this page without logging in, you will be redirected shortly</p>";
+                setTimeout(() => {
+                    window.location.replace("index.html")
+                }, 3000)
+            } else if (guard === "guest") {
+                body.innerHTML = "<p>you are not allowed to access this page , you will be redirected shortly</p>";
+                setTimeout(() => {
+                    window.location.replace("guest.html")
+                }, 3000)
+            }
+        }
+        const tableBody = document.getElementById("tableBody");
+        async function fetchUsers() {
+            let result = await fetch("http://localhost/api/v1/users");
+            let users = await result.json();
+            console.log("users>", users);
+            if (users) {
+                users.payload.map(user => {
+                    let tableData = `<tr>
+                                        <td> ${user._id}</td>
+                                        <td> ${user.name}</td>
+                                        <td> ${user.email}</td>
+                                        <td> ${user.address}</td>
+                                        <td> ${user.userType}</td>
+                                    </tr>`
+                    tableBody.innerHTML += tableData
+
+                })
+            }
+
+        }
+    </script>
+</body>
+
+</html>
